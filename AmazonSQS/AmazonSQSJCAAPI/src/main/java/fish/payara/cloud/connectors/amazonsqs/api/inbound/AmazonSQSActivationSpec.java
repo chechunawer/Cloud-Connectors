@@ -73,6 +73,8 @@ public class AmazonSQSActivationSpec implements ActivationSpec, AwsCredentialsPr
     private String messageAttributeNames = "All";
     private String attributeNames = "All";
     private String profileName;
+    private String localStackUrl;
+    private boolean testEnvironment;
 
     @Override
     public void validate() throws InvalidPropertyException {
@@ -82,6 +84,15 @@ public class AmazonSQSActivationSpec implements ActivationSpec, AwsCredentialsPr
 
         if (StringUtils.isBlank(queueURL)) {
             throw new InvalidPropertyException("queueURL must be specified");
+        }
+
+        if(testEnvironment){
+            if(StringUtils.isBlank(localStackUrl)){
+                throw new InvalidPropertyException("Test environment is activated. Localstack url musts be specified");
+            }
+            if(!queueURL.startsWith("http://localhost") || !localStackUrl.startsWith("http://localhost")){
+                throw new InvalidPropertyException("Test environment is activated. Queue url and Localstack url must to point to localhost");
+            }
         }
     }
 
@@ -181,6 +192,23 @@ public class AmazonSQSActivationSpec implements ActivationSpec, AwsCredentialsPr
 
     public void setProfileName(String profileName) {
         this.profileName = profileName;
+    }
+
+    public void setLocalStackUrl(String localStackUrl){
+        this.localStackUrl = localStackUrl;
+    }
+
+    public String getLocalStatckUrl(){
+        return localStackUrl;
+    }
+
+    public void setTestEnvironment(boolean testEnvironment){
+        this.testEnvironment = testEnvironment;
+    }
+
+
+    public boolean isTestEnvironment(){
+        return testEnvironment;
     }
 
     @Override
