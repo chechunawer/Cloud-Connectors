@@ -41,6 +41,8 @@ package fish.payara.cloud.connectors.amazonsqs.api.inbound;
 
 import fish.payara.cloud.connectors.amazonsqs.api.OnSQSMessage;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimerTask;
@@ -50,7 +52,7 @@ import java.util.stream.Collectors;
 import jakarta.resource.spi.BootstrapContext;
 import jakarta.resource.spi.endpoint.MessageEndpointFactory;
 import jakarta.resource.spi.work.WorkException;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.Message;
@@ -71,7 +73,15 @@ class SQSPoller extends TimerTask {
         spec = sqsSpec;
         ctx = context;
         factory = endpointFactory;
-        client = SqsClient.builder().region(Region.of(spec.getRegion()))
+        URI localStack = null;
+        if(spec.isTestEnvironment()) {
+        	try {
+				localStack = new URI(spec.getLocalStatckUrl());
+			} catch (URISyntaxException e) {
+				Logger.getLogger(AmazonSQSResourceAdapter.class.getName()).warning("LocalStackUrl are not valid url");
+			}
+        }
+        client = SqsClient.builder().region(Region.of(spec.getRegion())).endpointOverride(localStack)
                 .credentialsProvider(spec).build();
     }
 

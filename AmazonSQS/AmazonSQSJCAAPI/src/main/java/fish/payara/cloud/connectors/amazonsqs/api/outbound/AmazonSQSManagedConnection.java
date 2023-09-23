@@ -54,6 +54,8 @@ import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
 
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,7 +84,15 @@ public class AmazonSQSManagedConnection implements ManagedConnection, AmazonSQSC
 
     AmazonSQSManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo, AmazonSQSManagedConnectionFactory aThis) {
         AwsCredentialsProvider credentialsProvider = getCredentials(aThis);
-        sqsClient = SqsClient.builder().region(Region.of(aThis.getRegion())).credentialsProvider(credentialsProvider).build();
+       	URI uri = null;
+       	if(aThis.isTest()) {
+       		try {
+				uri = new URI(aThis.getLocalStackUrl());
+			} catch (URISyntaxException e) {
+				logWriter.println(" Test environment is active but localstack url is not valid ");
+			}
+       	}
+        sqsClient = SqsClient.builder().region(Region.of(aThis.getRegion())).credentialsProvider(credentialsProvider).endpointOverride(uri).build();
     }
 
     @Override
@@ -139,7 +149,7 @@ public class AmazonSQSManagedConnection implements ManagedConnection, AmazonSQSC
 
             @Override
             public String getEISProductVersion() throws ResourceException {
-                return "1.0.0";
+                return "3.0.0";
             }
 
             @Override

@@ -75,6 +75,12 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
 
     @ConfigProperty(description = "AWS Profile Name", type = String.class)
     private String profileName;
+    
+    @ConfigProperty(description = "URL to use with test environment", type = String.class)
+    private String localStackUrl;
+    
+    @ConfigProperty(description = "True if you are going to use localstack", type = Boolean.class)
+    private boolean isTest;
 
     private PrintWriter logger;
 
@@ -109,8 +115,24 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
     public void setProfileName(String profileName) {
         this.profileName = profileName;
     }
+    
+    public String getLocalStackUrl() {
+		return localStackUrl;
+	}
 
-    public AmazonSQSManagedConnectionFactory() {
+	public void setLocalStackUrl(String localStackUrl) {
+		this.localStackUrl = localStackUrl;
+	}
+
+	public boolean isTest() {
+		return isTest;
+	}
+
+	public void setTest(boolean isTest) {
+		this.isTest = isTest;
+	}
+
+	public AmazonSQSManagedConnectionFactory() {
     }
 
 
@@ -146,43 +168,24 @@ public class AmazonSQSManagedConnectionFactory implements ManagedConnectionFacto
         return logger;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + Objects.hashCode(this.awsSecretKey);
-        hash = 97 * hash + Objects.hashCode(this.awsAccessKeyId);
-        hash = 97 * hash + Objects.hashCode(this.region);
-        hash = 97 * hash + Objects.hashCode(this.profileName);
-        return hash;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(awsAccessKeyId, awsSecretKey, isTest, localStackUrl, profileName, region);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final AmazonSQSManagedConnectionFactory other = (AmazonSQSManagedConnectionFactory) obj;
-        if (!Objects.equals(this.awsSecretKey, other.awsSecretKey)) {
-            return false;
-        }
-        if (!Objects.equals(this.awsAccessKeyId, other.awsAccessKeyId)) {
-            return false;
-        }
-        if (!Objects.equals(this.region, other.region)) {
-            return false;
-        }
-        if (!Objects.equals(this.profileName, other.profileName)) {
-            return false;
-        }
-        return true;
-    }
-
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AmazonSQSManagedConnectionFactory other = (AmazonSQSManagedConnectionFactory) obj;
+		return Objects.equals(awsAccessKeyId, other.awsAccessKeyId) && Objects.equals(awsSecretKey, other.awsSecretKey)
+				&& isTest == other.isTest && Objects.equals(localStackUrl, other.localStackUrl)
+				&& Objects.equals(profileName, other.profileName) && Objects.equals(region, other.region);
+	}
 
 
 }
